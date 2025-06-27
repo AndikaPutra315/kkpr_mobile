@@ -115,7 +115,11 @@ class DataKkprBerusahaPage extends StatelessWidget {
           children: [
             Image.asset('assets/images/logo.png', height: 35),
             const SizedBox(width: 10),
-            const Text('Data KKPR Berusaha'),
+            // [PERUBAHAN 1]: Menambahkan style warna putih pada judul AppBar
+            const Text(
+              'Data KKPR Berusaha',
+              style: TextStyle(color: Colors.white),
+            ),
           ],
         ),
         backgroundColor: primaryColor,
@@ -138,8 +142,10 @@ class DataKkprBerusahaPage extends StatelessWidget {
             ),
           );
         },
-        label: const Text('Tambah Data'),
-        icon: const Icon(Icons.add),
+        // [PERUBAHAN 2]: Menambahkan style warna putih pada label Tombol Aksi Terapung
+        label: const Text('Tambah Data', style: TextStyle(color: Colors.white)),
+        // [PERUBAHAN 3]: Mengubah warna ikon menjadi putih
+        icon: const Icon(Icons.add, color: Colors.white),
         backgroundColor: primaryColor,
       ),
     );
@@ -152,39 +158,83 @@ class DataKkprBerusahaPage extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ExpansionTile(
-        title: Text(data.namaPelakuUsaha, style: const TextStyle(fontWeight: FontWeight.bold, color: textColor, fontSize: 16)),
-        subtitle: Text(data.judulKbli, style: const TextStyle(color: hintColor, fontSize: 14)),
-        leading: const CircleAvatar(backgroundColor: primaryColor, child: Icon(Icons.business, color: Colors.white)),
+        title: Text(
+          data.namaPelakuUsaha,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: textColor,
+            fontSize: 16,
+          ),
+        ),
+        subtitle: Text(
+          data.judulKbli,
+          style: const TextStyle(color: hintColor, fontSize: 14),
+        ),
+        leading: const CircleAvatar(
+          backgroundColor: primaryColor,
+          child: Icon(Icons.business, color: Colors.white),
+        ),
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Divider(),
                 _buildSectionTitle('Informasi Pelaku Usaha'),
                 _buildDataRow(Icons.badge, 'NPWP', data.npwp),
-                _buildDataRow(Icons.location_city, 'Alamat Kantor', data.alamatKantor),
+                _buildDataRow(
+                  Icons.location_city,
+                  'Alamat Kantor',
+                  data.alamatKantor,
+                ),
                 _buildDataRow(Icons.phone, 'Telepon', data.telepon),
                 _buildDataRow(Icons.email, 'Email', data.email),
                 const SizedBox(height: 12),
                 _buildSectionTitle('Detail Usaha'),
-                _buildDataRow(Icons.business_center, 'Status Modal', data.statusPenanamanModal),
-                _buildDataRow(Icons.qr_code, 'Kode & Judul KBLI', '${data.kodeKbli} - ${data.judulKbli}'),
+                _buildDataRow(
+                  Icons.business_center,
+                  'Status Modal',
+                  data.statusPenanamanModal,
+                ),
+                _buildDataRow(
+                  Icons.qr_code,
+                  'Kode & Judul KBLI',
+                  '${data.kodeKbli} - ${data.judulKbli}',
+                ),
                 _buildDataRow(Icons.category, 'Sektor Usaha', data.sektorUsaha),
                 _buildDataRow(Icons.analytics, 'Skala Usaha', data.skalaUsaha),
                 const SizedBox(height: 12),
                 _buildSectionTitle('Lokasi & Informasi KKPR'),
-                _buildDataRow(Icons.store, 'Alamat Usaha', '${data.alamatUsaha}, ${data.kelurahan}, ${data.kecamatan}'),
-                _buildDataRow(Icons.square_foot, 'Luas Tanah', '${data.luasTanah} m²'),
+                _buildDataRow(
+                  Icons.store,
+                  'Alamat Usaha',
+                  '${data.alamatUsaha}, ${data.kelurahan}, ${data.kecamatan}',
+                ),
+                _buildDataRow(
+                  Icons.square_foot,
+                  'Luas Tanah',
+                  '${data.luasTanah} m²',
+                ),
                 _buildDataRow(Icons.file_copy, 'Jenis KKPR', data.jenisKkpr),
-                _buildDataRow(Icons.source, 'Dasar Dokumen', data.jenisKkprDokumen),
-                _buildDataRow(Icons.upload_file, 'File Terlampir', data.namaFile),
+                _buildDataRow(
+                  Icons.source,
+                  'Dasar Dokumen',
+                  data.jenisKkprDokumen,
+                ),
+                _buildDataRow(
+                  Icons.upload_file,
+                  'File Terlampir',
+                  data.namaFile,
+                ),
                 const SizedBox(height: 10),
                 _buildActionButtons(context, data),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
@@ -217,17 +267,26 @@ class DataKkprBerusahaPage extends StatelessWidget {
               builder: (BuildContext dialogContext) {
                 return AlertDialog(
                   title: const Text('Konfirmasi Hapus'),
-                  content: Text('Anda yakin ingin menghapus data untuk "${data.namaPelakuUsaha}"?'),
+                  content: Text(
+                    'Anda yakin ingin menghapus data untuk "${data.namaPelakuUsaha}"?',
+                  ),
                   actions: <Widget>[
                     TextButton(
                       child: const Text('Batal'),
                       onPressed: () => Navigator.of(dialogContext).pop(),
                     ),
                     TextButton(
-                      child: const Text('Hapus', style: TextStyle(color: Colors.red)),
+                      child: const Text(
+                        'Hapus',
+                        style: TextStyle(color: Colors.red),
+                      ),
                       onPressed: () {
                         Navigator.of(dialogContext).pop();
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Data dihapus (simulasi).')));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Data dihapus (simulasi).'),
+                          ),
+                        );
                       },
                     ),
                   ],
@@ -243,7 +302,14 @@ class DataKkprBerusahaPage extends StatelessWidget {
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: primaryColor)),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: primaryColor,
+        ),
+      ),
     );
   }
 
@@ -260,7 +326,15 @@ class DataKkprBerusahaPage extends StatelessWidget {
               TextSpan(
                 text: '$label: ',
                 style: const TextStyle(color: hintColor, fontSize: 14),
-                children: [TextSpan(text: value, style: const TextStyle(color: textColor, fontWeight: FontWeight.w500))],
+                children: [
+                  TextSpan(
+                    text: value,
+                    style: const TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

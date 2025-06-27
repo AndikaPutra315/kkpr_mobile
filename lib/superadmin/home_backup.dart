@@ -6,21 +6,21 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-// Import file-file halaman Anda
+// Import file-file lokal dengan path yang benar
 import '../navigation/profil_drawer.dart';
 import '../kkpr/jeniskkpr/data_kkpr_berusaha.dart';
 import '../kkpr/jeniskkpr/data_kkpr_nonberusaha.dart';
 import '../kkpr/pernyataan_mandiri/pernyataan_mandiri.dart';
 import '../kkpr/survey/survey_kkpr.dart';
 import '../kkpr/survey/survey_mandiri.dart';
+
+// [PERBAIKAN 1]: Import ke halaman manajemen yang sebenarnya
 import '../manajemen/admin/manajemen_admin.dart';
 import '../manajemen/informasi/manajemen_informasi.dart';
 
 // =========================================================================
 // KELAS UTAMA: HOME PAGE (Cangkang Aplikasi)
 // =========================================================================
-// HomePage sekarang berfungsi sebagai "cangkang" yang memegang AppBar,
-// Drawer, dan BottomNavigationBar yang persisten.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -29,41 +29,31 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // State untuk melacak indeks/tab yang sedang aktif.
-  int _selectedIndex = 0;
-
-  // INI ADALAH BAGIAN PALING PENTING.
-  // Daftar ini berisi WIDGET KONTEN (BUKAN HALAMAN DENGAN SCAFFOLD)
-  // yang akan ditampilkan di body sesuai tab yang dipilih.
-  static final List<Widget> _pages = <Widget>[
-    // Indeks 0: Halaman utama/dashboard.
-    const AdminDashboardBody(),
-
-    // Indeks 1: Kontainer untuk tab Data KKPR.
-    const DataKkprPageContainer(),
-
-    // Indeks 2: Halaman Pernyataan Mandiri.
-    // PASTIKAN widget `PernyataanMandiri` TIDAK memiliki Scaffold-nya sendiri.
-    PernyataanMandiri(),
-
-    // Indeks 3: Kontainer untuk tab Survey.
-    const SurveyPageContainer(),
-
-    // Indeks 4: Kontainer untuk tab Manajemen.
-    const ManajemenPageContainer(),
-  ];
-
-  // Fungsi ini hanya bertugas mengubah state indeks ketika item bar diklik.
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    switch (index) {
+      case 0: // Home
+        break;
+      case 1: // Data KKPR
+        _showKkprOptions(context);
+        break;
+      case 2: // Pernyataan Mandiri
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => PernyataanMandiri()),
+        );
+        break;
+      case 3: // Survey Penilaian
+        _showSurveyOptions(context);
+        break;
+      case 4: // Manajemen
+        _showManajemenOptions(context);
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // AppBar dan Drawer ini akan selalu sama untuk semua halaman.
       appBar: AppBar(
         title: Row(
           children: [
@@ -75,11 +65,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: const Color(0xFF3A5795),
       ),
       drawer: const ProfilDrawer(),
-
-      // Body akan berganti-ganti sesuai dengan `_selectedIndex`.
-      body: _pages.elementAt(_selectedIndex),
-
-      // BottomNavigationBar ini juga akan selalu ada.
+      body: const AdminDashboardBody(),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         unselectedItemColor: Colors.grey[600],
@@ -111,122 +97,135 @@ class _HomePageState extends State<HomePage> {
             label: 'Manajemen',
           ),
         ],
-        currentIndex: _selectedIndex,
+        currentIndex: 0,
         onTap: _onItemTapped,
       ),
     );
   }
-}
 
-// =========================================================================
-// WIDGET-WIDGET KONTAINER UNTUK SETIAP SEKSI DENGAN SUB-MENU (TAB)
-// =========================================================================
-// Widget ini hanya untuk seksi "Data KKPR". Ia tidak punya Scaffold.
-class DataKkprPageContainer extends StatelessWidget {
-  const DataKkprPageContainer({super.key});
+  void _showKkprOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Wrap(
+          children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.business_center_outlined),
+              title: const Text('Data Berusaha'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DataKkprBerusahaPage(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person_outline),
+              title: const Text('Data Non Berusaha'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DataKkprNonBerusahaPage(),
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Column(
-        children: [
-          Container(
-            color: Colors.white,
-            child: const TabBar(
-              labelColor: Color(0xFF3A5795),
-              unselectedLabelColor: Colors.grey,
-              indicatorColor: Color(0xFF3A5795),
-              tabs: [
-                Tab(text: 'Data Berusaha'),
-                Tab(text: 'Data Non Berusaha'),
-              ],
+  void _showSurveyOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Wrap(
+          children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.file_copy_outlined),
+              title: const Text('Survey KKPR'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SurveyKkprPage(),
+                  ),
+                );
+              },
             ),
-          ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                // PASTIKAN `DataKkprBerusahaPage` dan `DataKkprNonBerusahaPage`
-                // juga TIDAK memiliki Scaffold.
-                DataKkprBerusahaPage(),
-                DataKkprNonBerusahaPage(),
-              ],
+            ListTile(
+              leading: const Icon(Icons.history_edu_outlined),
+              title: const Text('Survey Mandiri'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SurveyMandiriPage(),
+                  ),
+                );
+              },
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showManajemenOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Wrap(
+          children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.admin_panel_settings_outlined),
+              title: const Text('Manajemen Admin'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    // [PERBAIKAN 2]: Navigasi sekarang mengarah ke class yang benar dari file yang di-import
+                    builder: (context) => const ManajemenAdminPage(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('Manajemen Informasi'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    // [PERBAIKAN 2]: Navigasi sekarang mengarah ke class yang benar dari file yang di-import
+                    builder: (context) => const ManajemenInformasiPage(),
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
 
-// Widget ini hanya untuk seksi "Survey". Ia tidak punya Scaffold.
-class SurveyPageContainer extends StatelessWidget {
-  const SurveyPageContainer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Column(
-        children: [
-          Container(
-            color: Colors.white,
-            child: const TabBar(
-              labelColor: Color(0xFF3A5795),
-              unselectedLabelColor: Colors.grey,
-              indicatorColor: Color(0xFF3A5795),
-              tabs: [Tab(text: 'Survey KKPR'), Tab(text: 'Survey Mandiri')],
-            ),
-          ),
-          const Expanded(
-            child: TabBarView(
-              children: [SurveyKkprPage(), SurveyMandiriPage()],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Widget ini hanya untuk seksi "Manajemen". Ia tidak punya Scaffold.
-class ManajemenPageContainer extends StatelessWidget {
-  const ManajemenPageContainer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Column(
-        children: [
-          Container(
-            color: Colors.white,
-            child: const TabBar(
-              labelColor: Color(0xFF3A5795),
-              unselectedLabelColor: Colors.grey,
-              indicatorColor: Color(0xFF3A5795),
-              tabs: [
-                Tab(text: 'Manajemen Admin'),
-                Tab(text: 'Manajemen Informasi'),
-              ],
-            ),
-          ),
-          const Expanded(
-            child: TabBarView(
-              children: [ManajemenAdminPage(), ManajemenInformasiPage()],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // =========================================================================
-// KELAS DASHBOARD BODY (Tidak ada perubahan, sudah benar)
+// KELAS DASHBOARD BODY (Tidak ada perubahan di sini)
 // =========================================================================
 class AdminDashboardBody extends StatefulWidget {
   const AdminDashboardBody({super.key});
+
   @override
   State<AdminDashboardBody> createState() => _AdminDashboardBodyState();
 }
@@ -236,6 +235,7 @@ class _AdminDashboardBodyState extends State<AdminDashboardBody> {
   DateTime? _selectedDay;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _mapKey = GlobalKey();
+
   static const Color backgroundColor = Color(0xFFF0F2F5);
   static const Color cardHeaderColor = Color(0xFFFFC107);
   static const Color primaryTextColor = Color(0xFF333333);
@@ -584,3 +584,5 @@ class _AdminDashboardBodyState extends State<AdminDashboardBody> {
     );
   }
 }
+
+// [PERBAIKAN 3]: SEMUA KODE PLACEHOLDER DI BAWAH INI TELAH DIHAPUS
