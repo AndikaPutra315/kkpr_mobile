@@ -8,11 +8,11 @@ import 'package:latlong2/latlong.dart';
 
 // Import file-file halaman Anda
 import '../navigation/profil_drawer.dart';
-import '../kkpr/jeniskkpr/data_kkpr_berusaha.dart';
-import '../kkpr/jeniskkpr/data_kkpr_nonberusaha.dart';
+import '../kkpr/jeniskkpr/berusaha/data_kkpr_berusaha.dart';
+import '../kkpr/jeniskkpr/nonberusaha/data_kkpr_nonberusaha.dart';
 import '../kkpr/pernyataan_mandiri/pernyataan_mandiri.dart';
-import '../kkpr/survey/survey_kkpr.dart';
-import '../kkpr/survey/survey_mandiri.dart';
+import '../kkpr/survey/surveykkpr/survey_kkpr.dart';
+import '../kkpr/survey/mandiri/survey_mandiri.dart';
 import '../manajemen/admin/manajemen_admin.dart';
 import '../manajemen/informasi/manajemen_informasi.dart';
 

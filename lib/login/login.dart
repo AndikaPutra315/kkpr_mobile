@@ -1,7 +1,14 @@
-import 'package:flutter/material.dart';
+// lib/login/login.dart
 
-// Pastikan path import ke halaman home Anda sudah benar
-import '../superadmin/home.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+// Import service API Anda
+import '../services/api_service.dart';
+
+// Import halaman tujuan setelah login
+import '../superadmin/home.dart'; // Halaman untuk Superadmin
+// import '../admin/home.dart'; // Buat halaman ini untuk Admin
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,36 +18,82 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // Controller untuk mengambil teks dari input fields.
+  // Buat instance dari ApiService
+  final ApiService _apiService = ApiService();
+
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
-    // Selalu dispose controller untuk mencegah kebocoran memori.
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  // Fungsi untuk memvalidasi dan melakukan login.
-  void _login() {
-    final username = _usernameController.text;
-    final password = _passwordController.text;
+  // Fungsi untuk handle proses login
+  Future<void> _handleLogin() async {
+    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Username dan Password tidak boleh kosong!"),
+        ),
+      );
+      return;
+    }
 
-    // Logika login sederhana (sesuai file Anda sebelumnya)
-    if (username == 'admin' && password == '123') {
-      // Menggunakan pushReplacement agar pengguna tidak bisa kembali ke halaman login
+    setState(() => _isLoading = true);
+
+    try {
+      // PANGGIL FUNGSI LOGIN DARI APISERVICE
+      final userData = await _apiService.login(
+        _usernameController.text,
+        _passwordController.text,
+      );
+
+      // Jika login berhasil, navigasi ke halaman yang sesuai
+      if (mounted) {
+        _navigateToNextPage(userData['role_name']);
+      }
+    } catch (e) {
+      // Jika terjadi error dari ApiService, tampilkan pesan
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _navigateToNextPage(String role) {
+    if (!mounted) return;
+
+    if (role == 'superadmin') {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const HomePage()),
       );
-    } else {
-      // Tampilkan notifikasi jika login gagal
+    } else if (role == 'admin') {
+      // Ganti dengan halaman dashboard Admin Anda
+      // Navigator.of(context).pushReplacement(
+      //   MaterialPageRoute(builder: (context) => const AdminHomePage()),
+      // );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Username atau Password salah!"),
-          backgroundColor: Colors.redAccent,
+          content: Text("Login Admin Berhasil! (Halaman belum dibuat)"),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Role tidak dikenali!"),
+          backgroundColor: Colors.red,
         ),
       );
     }
@@ -49,10 +102,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Menggunakan Stack untuk menumpuk latar belakang gradien di bawah konten
       body: Stack(
         children: [
-          // Latar Belakang Gradien ("CSS" versi Dart)
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -62,7 +113,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-          // Konten utama yang aman dari notch atau status bar
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -70,16 +120,18 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo Aplikasi Anda
+                    // ==========================================================
+                    // ==                PERUBAHAN DI BAGIAN INI               ==
+                    // ==========================================================
+                    // Ikon gembok diganti kembali menjadi logo gambar Anda.
                     Image.asset(
-                      'assets/images/logo.png', // PASTIKAN PATH INI BENAR
+                      'assets/images/logo.png', // Pastikan path ini benar
                       height: 100,
-                      // Anda bisa menambahkan filter warna jika logo Anda tidak kontras
-                      // color: Colors.white,
                     ),
-                    const SizedBox(height: 20),
 
-                    // Judul Halaman
+                    // const Icon(Icons.lock, size: 80, color: Colors.white), // Kode ikon lama
+                    // ==========================================================
+                    const SizedBox(height: 20),
                     const Text(
                       'Selamat Datang',
                       style: TextStyle(
@@ -90,21 +142,19 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const Text(
                       'Login untuk melanjutkan',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white70,
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.white70),
                     ),
                     const SizedBox(height: 40),
-
-                    // Form Input Username
                     TextFormField(
                       controller: _usernameController,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         labelText: 'Username',
                         labelStyle: const TextStyle(color: Colors.white70),
-                        prefixIcon: const Icon(Icons.person_outline, color: Colors.white70),
+                        prefixIcon: const Icon(
+                          Icons.person_outline,
+                          color: Colors.white70,
+                        ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
                           borderSide: const BorderSide(color: Colors.white54),
@@ -116,26 +166,28 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // Form Input Password
                     TextFormField(
                       controller: _passwordController,
-                      obscureText: !_isPasswordVisible, // Sembunyikan atau tampilkan password
+                      obscureText: !_isPasswordVisible,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         labelText: 'Password',
                         labelStyle: const TextStyle(color: Colors.white70),
-                        prefixIcon: const Icon(Icons.lock_outline, color: Colors.white70),
+                        prefixIcon: const Icon(
+                          Icons.lock_outline,
+                          color: Colors.white70,
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                            _isPasswordVisible
+                                ? Icons.visibility_off
+                                : Icons.visibility,
                             color: Colors.white70,
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _isPasswordVisible = !_isPasswordVisible;
-                            });
-                          },
+                          onPressed:
+                              () => setState(
+                                () => _isPasswordVisible = !_isPasswordVisible,
+                              ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
@@ -148,12 +200,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 40),
-
-                    // Tombol Login
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _login,
+                        onPressed: _isLoading ? null : _handleLogin,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -161,14 +211,25 @@ class _LoginPageState extends State<LoginPage> {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        child: const Text(
-                          'LOGIN',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF3A5795), // Warna teks sesuai tema
-                          ),
-                        ),
+                        child:
+                            _isLoading
+                                ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Color(0xFF3A5795),
+                                    ),
+                                  ),
+                                )
+                                : const Text(
+                                  'LOGIN',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF3A5795),
+                                  ),
+                                ),
                       ),
                     ),
                   ],

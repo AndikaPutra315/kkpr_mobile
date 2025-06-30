@@ -8,8 +8,8 @@ import 'package:latlong2/latlong.dart';
 
 // Import file-file lokal dengan path yang benar
 import '../navigation/profil_drawer.dart';
-import '../kkpr/jeniskkpr/data_kkpr_berusaha.dart';
-import '../kkpr/jeniskkpr/data_kkpr_nonberusaha.dart';
+import '../kkpr/jeniskkpr/berusaha/data_kkpr_berusaha.dart';
+import '../kkpr/jeniskkpr/nonberusaha/data_kkpr_nonberusaha.dart';
 import '../kkpr/pernyataan_mandiri/pernyataan_mandiri.dart';
 import '../kkpr/survey/survey_kkpr.dart';
 import '../kkpr/survey/survey_mandiri.dart';
